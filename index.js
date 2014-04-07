@@ -9,25 +9,34 @@ module.exports = express = function() {
 
 	app.stack = [];
 
-	app.handle = function(req, res, next) {
+	app.handle = function(req, res, out) {
 		var index = 0, stack = this.stack;
-		function next(e) {
-			if(e) {
-				res.statusCode = 500;
-        			res.end("500 - " + e || "unhandled error");
-			}
+		function next(err) {
 			var layer = stack[index++];
 			if (!layer) {
-				res.statusCode = 404;
-        			res.end("404 - Not Found");
-			}else{
+				if(out){
+					return out(err);
+				} else  {
+					res.statusCode = err ? 500 : 404;
+      				 	res.end();
+				}
+			} else {
 				try{
-					layer(req, res, next);
-					next();
+					var arity = layer.length;
+					if (err) {
+						if (arity === 4) {
+							layer(err, req, res, next);
+						} else {
+							next(err);
+						}
+					} else if (arity < 4) {
+						layer(req, res, next);
+					} else {
+						next();
+					}
 				} catch(e) {
 					next(e);
 				}
-				
 			}
 		}	
 		next();
