@@ -11,18 +11,23 @@ module.exports = express = function() {
 
 	app.handle = function(req, res, next) {
 		var index = 0, stack = this.stack;
-		function next(err) {
-			if(err) {
+		function next(e) {
+			if(e) {
 				res.statusCode = 500;
-        			res.end("500 - hehe,you die.");
+        			res.end("500 - " + e || "unhandled error");
 			}
 			var layer = stack[index++];
 			if (!layer) {
 				res.statusCode = 404;
         			res.end("404 - Not Found");
 			}else{
-				layer(req, res, next);
-				next();
+				try{
+					layer(req, res, next);
+					next();
+				} catch(e) {
+					next(e);
+				}
+				
 			}
 		}	
 		next();

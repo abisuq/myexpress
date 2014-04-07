@@ -77,5 +77,13 @@ describe("Implement Error Handling", function(){
 		}
 		app.use(m1);
 		request(app).get("/").expect(500).end(done);
-	})
+	});
+
+	it("should return 500 for uncaught error", function(done) {
+		var m1 = function(req, res, next) {
+			throw new Error("xiuxiuxiu~");
+		}
+		app.use(m1);
+		request(app).get("/").expect(500).end(done);
+	});
 });
