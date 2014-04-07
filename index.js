@@ -11,7 +11,11 @@ module.exports = express = function() {
 
 	app.handle = function(req, res, next) {
 		var index = 0, stack = this.stack;
-		function next() {
+		function next(err) {
+			if(err) {
+				res.statusCode = 500;
+        			res.end("500 - hehe,you die.");
+			}
 			var layer = stack[index++];
 			if (!layer) {
 				res.statusCode = 404;

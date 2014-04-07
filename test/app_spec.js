@@ -51,11 +51,9 @@ describe("Implement calling the middlewares",function() {
 	  	var m1 = function(req,res,next) {
 	    		next();
 	  	};
-
 	  	var m2 = function(req,res,next) {
 	    		next();
 	  	};
-
 	  	app.use(m1);
 	  	app.use(m2);
 	  	request(app).get("/").expect(404).end(done);
@@ -65,4 +63,19 @@ describe("Implement calling the middlewares",function() {
 	  	request(app).get("/").expect(404).end(done);
 	});
 
+});
+
+describe("Implement Error Handling", function(){
+	var app;
+	beforeEach(function() {
+		app = new express();
+	});
+
+	it("should return 500 for unhandled error", function(done) {
+		var m1 = function(req, res, next) {
+			next(new Error("biu~biubiu~"));
+		}
+		app.use(m1);
+		request(app).get("/").expect(500).end(done);
+	})
 });
