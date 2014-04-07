@@ -1,11 +1,16 @@
 var http = require("http");
 module.exports = express = function() {
-	var myexpress = function(req, res) {
-		res.statusCode = 404;
-		res.end();
+	var app = function(req, res, next) {
+		app.stack[0](req, res, next);
 	}
-	myexpress.listen = function(port, callback) {
+	app.listen = function(port, callback) {
 		return http.createServer(this).listen(port, callback);
 	}
-	return myexpress;
+
+	app.stack = [];
+	app.use = function(m) {
+		this.stack .push(m);
+	}
+	return app;
  }
+
