@@ -1,4 +1,5 @@
 var http = require("http");
+var Layer = require("lib/layer")
 module.exports = express = function() {
 	var app = function(req, res, next) {
 		app.handle(req, res, next);
@@ -42,8 +43,13 @@ module.exports = express = function() {
 		next();
 	}
 
-	app.use = function(m) {
-		this.stack .push(m);
+	app.use = function(path, m) {
+		if (typeof path == "function"){
+			m = path;
+			path = "/";
+		};
+		var layer = new Layer(path, m);
+		this.stack .push(layer);
 	}
 
 	return app;
