@@ -23,15 +23,16 @@ module.exports = express = function() {
 				}
 			} else {
 				try{
-					var arity = layer.length;
+					if (!layer.match(req.url)) return next(err);
+					var arity = layer.handle.length;
 					if (err) {
 						if (arity === 4) {
-							layer(err, req, res, next);
+							layer.handle(err, req, res, next);
 						} else {
 							next(err);
 						}
 					} else if (arity < 4) {
-						layer(req, res, next);
+						layer.handle(req, res, next);
 					} else {
 						next();
 					}
