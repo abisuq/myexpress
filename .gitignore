@@ -32,3 +32,4 @@ bac.*
 /verify
 /lib/.DS_Store
 empty.js
+test.js

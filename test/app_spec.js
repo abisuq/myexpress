@@ -4,21 +4,6 @@ var request = require("supertest"),
 
 var express = require("../");
 
-describe("Implement app.use",function() {
-	var app;
-	var m1 = function() {};
-	var m2 = function() {};
-	before(function() {
-		app = express();
-	});
-
-	it("should be able to add middlewares to stack",function() {
-		app.use(m1);
-		app.use(m2);
-		expect(app.stack).to.deep.equal([m1,m2]);
-	});
-});
-
 describe("Implement calling the middlewares",function() {
 	var app;
 	beforeEach(function() {
@@ -201,3 +186,50 @@ describe("Implement req.params", function() {
 		request(app).get("/foo").expect("").end(done);
 	});
 })
+
+describe("app should have the handle method",function() {
+	it("should have the handle method",function() {
+		var app = express();
+		expect(app.handle).to.be.a("function");
+	});
+});
+
+
+describe("Prefix path trimming",function() {
+	var app, subapp, barapp;
+	beforeEach(function() {
+		app = express();
+		subapp = express();
+		subapp.use("/bar",function(req,res) {
+			res.end("embedded app: "+req.url);
+		});
+
+		app.use("/foo",subapp);
+
+		app.use("/foo",function(req,res) {
+			res.end("handler: "+req.url);
+		});
+	});
+
+	it("trims request path prefix when calling embedded app",function(done) {
+		request(app).get("/foo/bar").expect("embedded app: /bar").end(done);
+	});
+
+	it("restore trimmed request path to original when going to the next middleware",function(done) {
+		request(app).get("/foo").expect("handler: /foo").end(done);
+	});
+
+	describe("ensures leading slash",function() {
+		beforeEach(function() {
+			barapp = express();
+			barapp.use("/",function(req,res) {
+				res.end("/bar");
+			});
+			app.use("/bar",barapp);
+		});
+
+		it("ensures that first char is / for trimmed path",function(done) {
+			request(app).get("/bar/").expect("/bar").end(done);
+		});
+	});
+});
