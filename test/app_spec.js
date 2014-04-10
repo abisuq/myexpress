@@ -6,18 +6,16 @@ var express = require("../");
 
 describe("Implement app.use",function() {
 	var app;
-
 	var m1 = function() {};
 	var m2 = function() {};
-
 	before(function() {
-	  app = express();
+		app = express();
 	});
 
 	it("should be able to add middlewares to stack",function() {
-	  app.use(m1)
-	  app.use(m2)
-	  expect(app.stack).to.deep.equal([m1,m2]);
+		app.use(m1);
+		app.use(m2);
+		expect(app.stack).to.deep.equal([m1,m2]);
 	});
 });
 
@@ -183,16 +181,23 @@ describe("Implement Path Parameters Extraction", function() {
 
 });
 
-describe("req.params", function() {
+describe("Implement req.params", function() {
 	var app;
-	beforeEach(function() {
+	before(function() {
 		app = new express();
-		app.use("/foo/:a/:b", function(req, res, next) {
-			res.end(req.params.a + " and "  + req.params.b);
+		app.use("/foo/:a", function(req, res, next) {
+			res.end(req.params.a);
 		});
 		app.use("/foo", function(req, res, next) {
-			res.end("req without params");
+			res.end(req.params.a);
 		})
 	});
 
+	it("should make path parameters accessible in req.params",function(done) {
+		request(app).get("/foo/google").expect("google").end(done);
+	})
+
+	it("should make {} the default for req.params",function(done) {
+		request(app).get("/foo").expect("").end(done);
+	});
 })

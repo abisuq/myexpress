@@ -24,6 +24,7 @@ module.exports = express = function() {
 			} else {
 				try{
 					if (!layer.match(req.url)) return next(err);
+					req.params = layer.match(req.url).params;
 					var arity = layer.handle.length;
 					if (err) {
 						if (arity === 4) {
