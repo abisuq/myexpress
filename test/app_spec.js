@@ -136,3 +136,63 @@ describe("Implement App Embedding As Middleware",function() {
 	});
 
 });
+
+describe("Implement Path Parameters Extraction", function() {
+	var Layer,layer;
+	beforeEach(function() {
+		Layer = require("../lib/layer");
+		layer = new Layer("/foo/:a/:b");
+	});
+	
+	it("should return undefined for unmatched path", function() {
+		expect(layer.match("/other")).to.be.undefined;
+	});
+
+	it("should return undefined if params are not enough", function() {
+		expect(layer.match("/foo/justone")).to.be.undefined;
+	});
+
+	it("should return match data for exact match", function() {
+		var match = layer.match("/foo/one/another");
+		expect(match).to.not.be.undefined;
+		expect(match).to.have.property("path", "/foo/one/another");
+		expect(match.params).to.deep.equal({a:"one", b:"another"});
+	});
+
+	it("should return match data for prefix match", function() {
+		var match = layer.match("/foo/one/another/other");
+		expect(match).to.not.be.undefined;
+		expect(match).to.have.property("path", "/foo/one/another");
+		expect(match.params).to.deep.equal({a:"one", b:"another"});
+	});
+	
+	it("should decode uri encoding", function() {
+		var match = layer.match("/foo/apple/xiao%20mi");
+   		expect(match.params).to.deep.equal({a: "apple", b: "xiao mi"});
+	});
+
+	it("should strip trialing slash", function() {
+		layer = new Layer("/");
+		expect(layer.match("/foo")).to.not.be.undefined;
+		expect(layer.match("/")).to.not.be.undefined;
+
+		layer = new Layer("/foo/")
+		expect(layer.match("/foo")).to.not.be.undefined;
+		expect(layer.match("/foo/")).to.not.be.undefined;
+	});
+
+});
+
+describe("req.params", function() {
+	var app;
+	beforeEach(function() {
+		app = new express();
+		app.use("/foo/:a/:b", function(req, res, next) {
+			res.end(req.params.a + " and "  + req.params.b);
+		});
+		app.use("/foo", function(req, res, next) {
+			res.end("req without params");
+		})
+	});
+
+})
