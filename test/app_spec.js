@@ -267,3 +267,25 @@ describe('App get method', function() {
   });
 
 });
+
+describe("All http verbs:", function() {
+  var methods = require("methods"),
+    app;
+
+  beforeEach(function() {
+    app = express();
+  });
+
+  methods.forEach(function(method) {
+    it("responds to " + method, function(done) {
+      app[method]("/foo", function(req, res) {
+        res.end("foo");
+      });
+
+      if (method == "delete")
+        method = "del";
+
+      request(app)[method]("/foo").expect(200).end(done);
+    });
+  });
+});
