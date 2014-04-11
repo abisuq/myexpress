@@ -81,7 +81,7 @@ describe("Implement Error Handling", function(){
 		  	res.end("m2");
 		}
 		app.use(m1);
-		app.use(e1); 
+		app.use(e1);
 		app.use(m2);
 		request(app).get("/").expect("m2").end(done);
 	});
@@ -126,7 +126,7 @@ describe("Implement Path Parameters Extraction", function() {
 		Layer = require("../lib/layer");
 		layer = new Layer("/foo/:a/:b");
 	});
-	
+
 	it("should return undefined for unmatched path", function() {
 		expect(layer.match("/other")).to.be.undefined;
 	});
@@ -148,7 +148,7 @@ describe("Implement Path Parameters Extraction", function() {
 		expect(match).to.have.property("path", "/foo/one/another");
 		expect(match.params).to.deep.equal({a:"one", b:"another"});
 	});
-	
+
 	it("should decode uri encoding", function() {
 		var match = layer.match("/foo/apple/xiao%20mi");
    		expect(match.params).to.deep.equal({a: "apple", b: "xiao mi"});
@@ -193,7 +193,6 @@ describe("app should have the handle method",function() {
 		expect(app.handle).to.be.a("function");
 	});
 });
-
 
 describe("Prefix path trimming",function() {
 	var app, subapp, barapp;
