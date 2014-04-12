@@ -3,6 +3,7 @@ var request = require("supertest"),
   expect = require("chai").expect;
 
 var express = require("../");
+var makeRoute = require("../lib/route");
 
 describe("Implement calling the middlewares", function() {
   var app;
@@ -288,4 +289,26 @@ describe("All http verbs:", function() {
       request(app)[method]("/foo").expect(200).end(done);
     });
   });
+});
+
+describe('Add handlers to a route', function() {
+  var route, handle1, handle2;
+  before(function() {
+    route = makeRoute();
+    handle1 = function() {};
+    handle2 = function() {};
+    route.use("get", handle1);
+    route.use("post", handle2);
+  });
+
+  it("adds multiple handlers to route", function() {
+    expect(route.stack).to.have.length(2);
+  });
+
+  it("pushes action object to the stacks", function() {
+    var action = route.stack[0];
+    expect(action).to.have.property("verb", "get");
+    expect(action).to.have.property("handle", handle1);
+  })
+
 });
