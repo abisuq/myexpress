@@ -67,10 +67,17 @@ module.exports = express = function() {
     this.stack.push(layer);
   }
 
-  methods.forEach(function(method) {
+  app.route = function(path) {
+    var rt = makeRoute();
+    app.use(path, rt);
+    return rt;
+  }
+
+  methods.concat("all").forEach(function(method) {
     app[method] = function(path, m) {
-      var layer = new Layer(path, makeRoute(method, m), true);
-      this.stack.push(layer);
+      var route = app.route(path);
+      route.use(method, m);
+      return app;
     }
   })
 
