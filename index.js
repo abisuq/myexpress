@@ -6,6 +6,7 @@ var methods = require("methods");
 
 module.exports = express = function() {
   var app = function(req, res, next) {
+    app.monkey_patch(req, res);
     app.handle(req, res, next);
   }
   app.listen = function(port, callback) {
@@ -59,18 +60,18 @@ module.exports = express = function() {
     }
     next();
   }
-  app.use = function(path, m) {
+  app.use = function(path, m, end) {
     if (typeof path == "function") {
       m = path;
       path = "/";
     };
-    var layer = new Layer(path, m);
+    var layer = new Layer(path, m, end);
     this.stack.push(layer);
   }
 
   app.route = function(path) {
     var rt = makeRoute();
-    app.use(path, rt);
+    app.use(path, rt, true);
     return rt;
   }
 

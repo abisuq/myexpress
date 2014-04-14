@@ -516,3 +516,17 @@ describe("Monkey patch req and res", function() {
     });
   });
 });
+
+describe("Monkey patch before serving", function() {
+  var app;
+  beforeEach(function() {
+    app = express();
+    app.use(function(req, res) {
+      res.end(req.isExpress + "," + res.isExpress);
+    });
+  });
+
+  it("adds isExpress to req and res", function(done) {
+    request(app).get("/").expect("true,true").end(done);
+  });
+});
