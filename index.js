@@ -3,6 +3,7 @@ var Layer = require("lib/layer");
 var makeRoute = require("lib/route");
 var methods = require("methods");
 
+
 module.exports = express = function() {
   var app = function(req, res, next) {
     app.handle(req, res, next);
@@ -80,6 +81,13 @@ module.exports = express = function() {
       return app;
     }
   })
+
+  app.monkey_patch = function(req, res) {
+    var reqP = require("lib/request");
+    var resP = require("lib/response");
+    req.__proto__ = reqP;
+    res.__proto__ = resP;
+  }
 
   return app;
 }

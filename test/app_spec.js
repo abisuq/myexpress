@@ -493,3 +493,26 @@ describe("Implement Verbs For App", function(done) {
     request(app).get("/bar").expect("bar").end(done);
   })
 });
+
+describe("Monkey patch req and res", function() {
+  var app;
+  beforeEach(function() {
+    app = express();
+  });
+
+  it("adds isExpress to req and res", function(done) {
+    var _req, _res;
+    app.use(function(req, res) {
+      app.monkey_patch(req, res);
+      _req = req;
+      _res = res;
+      res.end(req.isExpress + "," + res.isExpress);
+    });
+
+    request(app).get("/").expect("true,true").end(function() {
+      expect(_res).to.not.have.ownProperty('isExpress');
+      expect(_req).to.not.have.ownProperty('isExpress');
+      done();
+    });
+  });
+});
