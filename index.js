@@ -92,17 +92,6 @@ module.exports = express = function() {
     res.__proto__ = resP;
     req.res = res;
     res.req = req;
-    res.redirect = function(status, url) {
-      if (typeof status !== "number") {
-        url = status;
-        status = 302;
-      }
-      res.writeHead(status, {
-        'Location': url,
-        'Content-Length': 0
-      });
-      res.end();
-    }
   }
 
   return app;
