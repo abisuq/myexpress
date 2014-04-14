@@ -8,6 +8,7 @@ module.exports = express = function() {
   var app = function(req, res, next) {
     app.monkey_patch(req, res);
     app.handle(req, res, next);
+
   }
   app.listen = function(port, callback) {
     return http.createServer(this).listen(port, callback);
@@ -32,6 +33,7 @@ module.exports = express = function() {
           res.end();
         }
       } else {
+        req.app = app;
         try {
           var match = layer.match(req.url);
           if (match === undefined) return next(err);
@@ -88,6 +90,19 @@ module.exports = express = function() {
     var resP = require("lib/response");
     req.__proto__ = reqP;
     res.__proto__ = resP;
+    req.res = res;
+    res.req = req;
+    res.redirect = function(status, url) {
+      if (typeof status !== "number") {
+        url = status;
+        status = 302;
+      }
+      res.writeHead(status, {
+        'Location': url,
+        'Content-Length': 0
+      });
+      res.end();
+    }
   }
 
   return app;
