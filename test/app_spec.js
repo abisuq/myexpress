@@ -695,7 +695,7 @@ describe("req.format", function() {
       res.format({});
     });
 
-    request(app).get("/")
+    request(app).get("/").set("Accept", "text/html, text/html")
       .expect(406).end(done);
   });
 });
