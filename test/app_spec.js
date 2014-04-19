@@ -767,4 +767,29 @@ describe("res.send:", function() {
         .expect("Content-Length", 3).end(done);
     });
   });
+  describe("sets status code:", function() {
+    beforeEach(function() {
+      app.use("/foo", function(req, res) {
+        res.send("foo ok"); // default status is 200
+      });
+      app.use("/bar", function(req, res) {
+        res.send(201, "bar created");
+      });
+      app.use("/201", function(req, res) {
+        res.send(201);
+      });
+    });
+
+    it("defaults status code to 200", function(done) {
+      request(app).get("/foo").expect(200, "foo ok").end(done);
+    });
+
+    it("can respond with a given status code", function(done) {
+      request(app).get("/bar").expect(201, "bar created").end(done);
+    });
+
+    it("reponds with default status code body is only status code is given", function(done) {
+      request(app).get("/201").expect(201, "Created").end(done);
+    });
+  });
 });
