@@ -745,6 +745,26 @@ describe("res.send:", function() {
         .expect("Content-Type", "application/json")
         .end(done);
     });
+  });
+  describe("sets content-length:", function() {
+    beforeEach(function() {
+      app.use("/buffer", function(req, res) {
+        res.send(new Buffer("abc"));
+      });
 
+      app.use("/string", function(req, res) {
+        res.send("你好吗");
+      });
+    });
+
+    it("responds with the byte length of unicode string", function(done) {
+      request(app).get("/string")
+        .expect("Content-Length", 9).end(done);
+    });
+
+    it("responds with the byte length of buffer", function(done) {
+      request(app).get("/buffer")
+        .expect("Content-Length", 3).end(done);
+    });
   });
 });
