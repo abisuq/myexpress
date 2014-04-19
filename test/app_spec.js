@@ -809,3 +809,93 @@ describe("res.send:", function() {
     })
   });
 });
+describe("Conditional get:", function() {
+  var app;
+  beforeEach(function() {
+    app = express();
+  })
+
+  describe("Calculate Etag:", function() {
+    beforeEach(function() {
+      app.use("/buckeroo", function(req, res) {
+        res.setHeader("ETag", "buckeroo");
+        res.send("buckeroo");
+      });
+
+      app.use("/plumless", function(req, res) {
+        res.send("plumless");
+      });
+
+      app.use("/empty", function(req, res) {
+        res.send("");
+      });
+    });
+
+    it("generates ETag", function(done) {
+      request(app).get("/plumless")
+        .expect("plumless")
+        .expect("ETag", '"1306201125"')
+        .end(done);
+    });
+
+    it("doesn't generate ETag for non GET requests", function(done) {
+      request(app).post("/plumless")
+        .expect(function(res) {
+          expect(res.headers).to.not.have.property("etag");
+        })
+        .end(done);
+    });
+
+    it("doesn't generate ETag if already set", function(done) {
+      request(app).get("/buckeroo")
+        .expect("ETag", "buckeroo")
+        .end(done);
+    });
+
+    it("doesn't generate ETag for empty body", function(done) {
+      request(app).get("/empty")
+        .expect(function(res) {
+          expect(res.headers).to.not.have.property("etag");
+        })
+        .end(done);
+    });
+  });
+
+  describe("ETag 304:", function() {
+    beforeEach(function() {
+      app.use(function(req, res) {
+        res.setHeader("ETag", "foo-v1")
+        res.send("foo-v1");
+      });
+    });
+
+    it("returns 304 if ETag matches", function(done) {
+      request(app).get("/").set("If-None-Match", "foo-v1")
+        .expect(304).end(done);
+    });
+
+    it("returns 200 if ETag doesn't match", function(done) {
+      request(app).get("/").set("If-None-Match", "foo-v0")
+        .expect(200, "foo-v1").end(done);
+    });
+  });
+  describe("Last-Modified 304:", function() {
+    beforeEach(function() {
+      app.use(function(req, res) {
+        res.setHeader("Last-Modified", "Sun, 31 Jan 2010 16:00:00 GMT")
+        res.send("bar-2010");
+      });
+    });
+
+    it("returns 304 if not modified since ", function(done) {
+      request(app).get("/").set("If-Modified-Since", "Sun, 31 Jan 2010 16:00:00 GMT")
+        .expect(304).end(done);
+    });
+
+    it("returns 200 if modified since", function(done) {
+      request(app).get("/").set("If-Modified-Since", "Sun, 31 Jan 2009 16:00:00 GMT")
+        .expect(200).end(done);
+    });
+  });
+
+});
