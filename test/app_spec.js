@@ -699,3 +699,52 @@ describe("req.format", function() {
       .expect(406).end(done);
   });
 });
+
+describe("res.send:", function() {
+  var app;
+  beforeEach(function() {
+    app = express();
+  })
+
+  describe("support buffer and string body:", function() {
+    beforeEach(function() {
+      app.use("/buffer", function(req, res) {
+        res.send(new Buffer("binary data"));
+        // Content-Type: application/octet-stream
+      });
+
+      app.use("/string", function(req, res) {
+        res.send("string data");
+        // Content-Type: text/html
+      });
+
+      app.use("/json", function(req, res) {
+        res.type("json");
+        res.send("[1,2,3]");
+        // Content-Type: application/json
+      });
+    });
+
+    it("responds to buffer", function(done) {
+      request(app).get("/buffer")
+        .expect("binary data")
+        .expect("Content-Type", "application/octet-stream")
+        .end(done);
+    });
+
+    it("responds to string", function(done) {
+      request(app).get("/string")
+        .expect("string data")
+        .expect("Content-Type", "text/html")
+        .end(done);
+    });
+
+    it("should not override existing content-type", function(done) {
+      request(app).get("/json")
+        .expect("[1,2,3]")
+        .expect("Content-Type", "application/json")
+        .end(done);
+    });
+
+  });
+});
