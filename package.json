@@ -16,6 +16,7 @@
   "dependencies": {
     "mime": "^1.2.11",
     "accepts": "^1.0.1",
-    "buffer-crc32": "^0.2.1"
+    "buffer-crc32": "^0.2.1",
+    "range-parser": "^1.0.0"
   }
 }
